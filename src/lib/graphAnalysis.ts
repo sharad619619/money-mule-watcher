@@ -173,7 +173,7 @@ function detectFanOut(
   return suspiciousDistributors;
 }
 
-// Detect layered transfers: chains of 3+ hops through low-activity accounts
+// Detect layered transfers: chains of 3+ hops where ALL intermediate accounts are shells (≤3 txs)
 function detectLayeredTransfers(
   adj: AdjacencyList,
   accountTxCounts: Map<string, number>,
@@ -186,12 +186,16 @@ function detectLayeredTransfers(
   const nodes = Array.from(adj.keys());
 
   for (const startNode of nodes) {
-    const stack: Array<{ node: string; path: string[]; shells: string[] }> = [
-      { node: startNode, path: [startNode], shells: [] },
+    // Only start chains from non-shell accounts (legitimate originators)
+    const startTxCount = accountTxCounts.get(startNode) || 0;
+    if (startTxCount <= shellThreshold) continue;
+
+    const stack: Array<{ node: string; path: string[]; shells: string[]; allIntermediatesAreShells: boolean }> = [
+      { node: startNode, path: [startNode], shells: [], allIntermediatesAreShells: true },
     ];
 
     while (stack.length > 0) {
-      const { node, path, shells } = stack.pop()!;
+      const { node, path, shells, allIntermediatesAreShells } = stack.pop()!;
       const neighbors = adj.get(node) || new Set();
 
       for (const neighbor of neighbors) {
@@ -200,19 +204,38 @@ function detectLayeredTransfers(
 
         const txCount = accountTxCounts.get(neighbor) || 0;
         const isShell = txCount <= shellThreshold;
-        const newShells = isShell ? [...shells, neighbor] : shells;
-        const newPath = [...path, neighbor];
 
-        if (newPath.length >= minChainLen && newShells.length >= 1) {
-          const key = newPath.join("->");
-          if (!foundChains.has(key)) {
-            foundChains.add(key);
-            layeredChains.push({ chain: newPath, shells: newShells });
+        // The neighbor is an intermediate if it's not the last node we're evaluating
+        // We accumulate shells only for intermediate nodes (not the final destination)
+        const newPath = [...path, neighbor];
+        const newShells = isShell ? [...shells, neighbor] : shells;
+
+        // A valid layered chain requires:
+        // 1. Chain length >= minChainLen (3+)
+        // 2. ALL intermediate nodes (everything except start and end) must be shells
+        if (newPath.length >= minChainLen) {
+          // Intermediates = all nodes except the first (startNode) and last (neighbor/current end)
+          const intermediates = newPath.slice(1, -1);
+          const allIntermediatesShell = intermediates.every(
+            (acc) => (accountTxCounts.get(acc) || 0) <= shellThreshold
+          );
+
+          if (allIntermediatesShell && intermediates.length > 0) {
+            const key = newPath.join("->");
+            if (!foundChains.has(key)) {
+              foundChains.add(key);
+              // Shells = only the intermediate nodes that are shells
+              const shellIntermediates = intermediates.filter(
+                (acc) => (accountTxCounts.get(acc) || 0) <= shellThreshold
+              );
+              layeredChains.push({ chain: newPath, shells: shellIntermediates });
+            }
           }
         }
 
+        // Only continue traversal through shell intermediates to keep chains valid
         if (isShell) {
-          stack.push({ node: neighbor, path: newPath, shells: newShells });
+          stack.push({ node: neighbor, path: newPath, shells: newShells, allIntermediatesAreShells });
         }
       }
     }

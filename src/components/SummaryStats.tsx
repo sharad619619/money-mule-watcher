@@ -38,7 +38,9 @@ function StatCard({
 
 export default function SummaryStats({ analysis }: SummaryStatsProps) {
   const handleDownload = () => {
-    const suspiciousNodes = analysis.nodes.filter((n) => n.isSuspicious);
+    const suspiciousNodes = analysis.nodes
+      .filter((n) => n.isSuspicious)
+      .sort((a, b) => b.suspicionScore - a.suspicionScore);
 
     const output = {
       suspicious_accounts: suspiciousNodes.map((n) => ({
