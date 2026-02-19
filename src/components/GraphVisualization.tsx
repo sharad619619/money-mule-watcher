@@ -1,7 +1,8 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { AccountNode, AnalysisResult } from "@/lib/graphAnalysis";
 import { Transaction } from "@/lib/csvParser";
 import { X, TrendingUp, ArrowRightLeft, DollarSign } from "lucide-react";
+import { useTheme } from "next-themes";
 
 interface GraphVisualizationProps {
   analysis: AnalysisResult;
@@ -30,6 +31,7 @@ interface SimEdge {
 }
 
 export default function GraphVisualization({ analysis }: GraphVisualizationProps) {
+  const { theme } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animFrameRef = useRef<number>(0);
   const nodesRef = useRef<SimNode[]>([]);
@@ -45,10 +47,12 @@ export default function GraphVisualization({ analysis }: GraphVisualizationProps
   const isPanningRef = useRef(false);
   const panStartRef = useRef({ x: 0, y: 0 });
 
+  const isDark = theme === "dark";
+
   const getColor = (score: number) => {
-    if (score >= 60) return "#ef4444";
-    if (score >= 30) return "#f59e0b";
-    return "#06b6d4";
+    if (score >= 60) return isDark ? "#ef4444" : "#dc2626";
+    if (score >= 30) return isDark ? "#f59e0b" : "#d97706";
+    return isDark ? "#06b6d4" : "#0891b2";
   };
 
   const getNodeRadius = (node: SimNode) => {
@@ -192,8 +196,8 @@ export default function GraphVisualization({ analysis }: GraphVisualizationProps
 
         ctx.beginPath();
         ctx.strokeStyle = aSusp && bSusp
-          ? "rgba(239, 68, 68, 0.35)"
-          : "rgba(148, 163, 184, 0.12)";
+          ? (isDark ? "rgba(239, 68, 68, 0.35)" : "rgba(220, 38, 38, 0.4)")
+          : (isDark ? "rgba(148, 163, 184, 0.12)" : "rgba(100, 116, 139, 0.15)");
         ctx.lineWidth = aSusp && bSusp ? 1.5 : 0.8;
         ctx.moveTo(a.x, a.y);
 
@@ -211,7 +215,9 @@ export default function GraphVisualization({ analysis }: GraphVisualizationProps
         const angle = Math.atan2(dy, dx);
         const arrowLen = 6;
         ctx.beginPath();
-        ctx.fillStyle = aSusp && bSusp ? "rgba(239, 68, 68, 0.5)" : "rgba(148, 163, 184, 0.2)";
+        ctx.fillStyle = aSusp && bSusp 
+          ? (isDark ? "rgba(239, 68, 68, 0.5)" : "rgba(220, 38, 38, 0.6)") 
+          : (isDark ? "rgba(148, 163, 184, 0.2)" : "rgba(100, 116, 139, 0.25)");
         ctx.moveTo(ex, ey);
         ctx.lineTo(ex - arrowLen * Math.cos(angle - 0.4), ey - arrowLen * Math.sin(angle - 0.4));
         ctx.lineTo(ex - arrowLen * Math.cos(angle + 0.4), ey - arrowLen * Math.sin(angle + 0.4));
@@ -254,7 +260,7 @@ export default function GraphVisualization({ analysis }: GraphVisualizationProps
 
         // Label for larger nodes or hovered
         if (r > 10 || isHovered || isSelected) {
-          ctx.fillStyle = "rgba(226, 232, 240, 0.9)";
+          ctx.fillStyle = isDark ? "rgba(226, 232, 240, 0.9)" : "rgba(15, 23, 42, 0.85)";
           ctx.font = `${isHovered ? "bold " : ""}${Math.max(8, r * 0.7)}px monospace`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -360,7 +366,7 @@ export default function GraphVisualization({ analysis }: GraphVisualizationProps
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
   const scoreColor = (s: number) =>
-    s >= 60 ? "text-red-400" : s >= 30 ? "text-amber-400" : "text-cyan-400";
+    s >= 60 ? "text-red-500 dark:text-red-400" : s >= 30 ? "text-amber-600 dark:text-amber-400" : "text-cyan-600 dark:text-cyan-400";
 
   return (
     <div className="relative w-full">
@@ -372,15 +378,15 @@ export default function GraphVisualization({ analysis }: GraphVisualizationProps
           </span>
           <div className="flex items-center gap-4 text-xs text-[hsl(var(--muted-foreground))]">
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
+              <div className="w-2.5 h-2.5 rounded-full bg-cyan-600 dark:bg-cyan-400" />
               <span>Normal</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+              <div className="w-2.5 h-2.5 rounded-full bg-amber-600 dark:bg-amber-400" />
               <span>Moderate risk</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-red-600 dark:bg-red-500" />
               <span>High risk</span>
             </div>
             <span className="ml-2 opacity-60">Scroll to zoom · Drag to pan</span>
@@ -514,7 +520,7 @@ export default function GraphVisualization({ analysis }: GraphVisualizationProps
                     </span>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className={tx.sender_id === selectedNode.id ? "text-red-400" : "text-cyan-400"}>
+                    <span className={tx.sender_id === selectedNode.id ? "text-red-500 dark:text-red-400" : "text-cyan-600 dark:text-cyan-400"}>
                       {tx.sender_id === selectedNode.id ? "-" : "+"}{formatCurrency(tx.amount)}
                     </span>
                     <span className="text-[hsl(var(--muted-foreground))] text-[10px]">

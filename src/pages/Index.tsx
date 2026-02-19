@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
-import { Shield, AlertTriangle } from "lucide-react";
+import { Shield, AlertTriangle, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 import FileUpload from "@/components/FileUpload";
 import GraphVisualization from "@/components/GraphVisualization";
 import FraudRingTable from "@/components/FraudRingTable";
@@ -8,6 +9,7 @@ import { parseCSV } from "@/lib/csvParser";
 import { analyzeTransactions, AnalysisResult } from "@/lib/graphAnalysis";
 
 export default function Index() {
+  const { theme, setTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
@@ -56,9 +58,18 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--primary))] animate-pulse" />
-            <span className="text-xs text-[hsl(var(--muted-foreground))]">Local Analysis Engine</span>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="p-2 rounded-lg bg-[hsl(var(--accent))] text-[hsl(var(--primary))] hover:opacity-80 transition-opacity"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--primary))] animate-pulse" />
+              <span className="text-xs text-[hsl(var(--muted-foreground))]">Local Analysis Engine</span>
+            </div>
           </div>
         </div>
       </header>
