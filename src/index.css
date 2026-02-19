@@ -6,7 +6,72 @@
 
 @layer base {
   :root {
-    /* Core surfaces */
+    /* Core surfaces - LIGHT MODE DEFAULT */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Brand – Cyan/Teal (slightly darker for light mode contrast) */
+    --primary: 191 91% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary – muted gray-blue */
+    --secondary: 210 40% 93%;
+    --secondary-foreground: 222 47% 11%;
+
+    /* Muted */
+    --muted: 210 40% 94%;
+    --muted-foreground: 215 16% 47%;
+
+    /* Accent – soft cyan */
+    --accent: 191 60% 92%;
+    --accent-foreground: 191 91% 30%;
+
+    /* Danger / suspicious */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 191 91% 40%;
+
+    --radius: 0.6rem;
+
+    /* Custom tokens */
+    --suspicious: 0 84% 60%;
+    --suspicious-glow: 0 84% 60%;
+    --safe: 191 91% 40%;
+    --safe-glow: 191 91% 40%;
+    --warning: 38 92% 50%;
+    --panel: 0 0% 100%;
+    --panel-border: 214 32% 88%;
+    --surface: 210 40% 96%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(210 40% 98%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 40% 97%));
+    --gradient-suspicious: linear-gradient(135deg, hsl(0 84% 60% / 0.1), hsl(0 84% 60% / 0.02));
+    --gradient-safe: linear-gradient(135deg, hsl(191 91% 40% / 0.08), hsl(191 91% 40% / 0.02));
+
+    --shadow-glow-cyan: 0 0 15px hsl(191 91% 40% / 0.15), 0 2px 8px hsl(222 47% 11% / 0.05);
+    --shadow-glow-red: 0 0 15px hsl(0 84% 60% / 0.2), 0 2px 8px hsl(222 47% 11% / 0.05);
+    --shadow-card: 0 4px 12px hsl(222 47% 11% / 0.06), 0 1px 2px hsl(222 47% 11% / 0.04);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 191 91% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 94%;
+    --sidebar-accent-foreground: 191 91% 30%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 191 91% 40%;
+  }
+
+  .dark {
     --background: 222 47% 5%;
     --foreground: 210 40% 94%;
 
@@ -16,23 +81,18 @@
     --popover: 222 40% 9%;
     --popover-foreground: 210 40% 94%;
 
-    /* Brand – Cyan */
     --primary: 191 91% 50%;
     --primary-foreground: 222 47% 5%;
 
-    /* Secondary – muted blue */
     --secondary: 217 33% 16%;
     --secondary-foreground: 210 40% 85%;
 
-    /* Muted */
     --muted: 217 28% 13%;
     --muted-foreground: 215 20% 50%;
 
-    /* Accent – slight teal */
     --accent: 191 60% 15%;
     --accent-foreground: 191 91% 70%;
 
-    /* Danger / suspicious */
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
@@ -40,9 +100,6 @@
     --input: 217 28% 14%;
     --ring: 191 91% 50%;
 
-    --radius: 0.6rem;
-
-    /* Custom tokens */
     --suspicious: 0 72% 51%;
     --suspicious-glow: 0 72% 51%;
     --safe: 191 91% 50%;
@@ -61,7 +118,6 @@
     --shadow-glow-red: 0 0 20px hsl(0 72% 51% / 0.3), 0 4px 16px hsl(222 47% 3% / 0.8);
     --shadow-card: 0 4px 24px hsl(222 47% 3% / 0.6), 0 1px 3px hsl(222 47% 3% / 0.4);
 
-    /* Sidebar (unused but required) */
     --sidebar-background: 222 40% 7%;
     --sidebar-foreground: 210 40% 85%;
     --sidebar-primary: 191 91% 50%;

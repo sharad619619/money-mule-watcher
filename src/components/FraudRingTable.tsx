@@ -6,17 +6,17 @@ interface FraudRingTableProps {
 }
 
 const PATTERN_LABELS: Record<string, { label: string; color: string }> = {
-  cycle: { label: "Circular Routing", color: "text-red-400 bg-red-500/10 border-red-500/25" },
-  fan_in_smurfing: { label: "Fan-in Smurfing", color: "text-amber-400 bg-amber-500/10 border-amber-500/25" },
-  fan_out_smurfing: { label: "Fan-out Smurfing", color: "text-orange-400 bg-orange-500/10 border-orange-500/25" },
-  layered_transfer: { label: "Layered Transfer", color: "text-purple-400 bg-purple-500/10 border-purple-500/25" },
+  cycle: { label: "Circular Routing", color: "text-red-600 dark:text-red-400 bg-red-500/10 border-red-500/25" },
+  fan_in_smurfing: { label: "Fan-in Smurfing", color: "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/25" },
+  fan_out_smurfing: { label: "Fan-out Smurfing", color: "text-orange-600 dark:text-orange-400 bg-orange-500/10 border-orange-500/25" },
+  layered_transfer: { label: "Layered Transfer", color: "text-purple-600 dark:text-purple-400 bg-purple-500/10 border-purple-500/25" },
 };
 
 function ScoreBadge({ score }: { score: number }) {
   const color =
-    score >= 60 ? "text-red-400 bg-red-500/10 border-red-500/20" :
-    score >= 30 ? "text-amber-400 bg-amber-500/10 border-amber-500/20" :
-    "text-cyan-400 bg-cyan-500/10 border-cyan-500/20";
+    score >= 60 ? "text-red-600 dark:text-red-400 bg-red-500/10 border-red-500/20" :
+    score >= 30 ? "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20" :
+    "text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 border-cyan-500/20";
 
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border text-xs font-bold ${color}`}>
@@ -42,7 +42,7 @@ export default function FraudRingTable({ rings }: FraudRingTableProps) {
     <div className="panel rounded-xl overflow-hidden">
       <div className="px-5 py-3.5 border-b border-[hsl(var(--border))] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ShieldAlert className="w-4 h-4 text-red-400" />
+          <ShieldAlert className="w-4 h-4 text-red-600 dark:text-red-400" />
           <span className="text-xs font-semibold tracking-widest text-[hsl(var(--muted-foreground))] uppercase">
             Fraud Ring Registry
           </span>

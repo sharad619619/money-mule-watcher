@@ -22,13 +22,13 @@ function StatCard({
     <div className={`panel rounded-xl p-4 ${highlight ? "border-red-500/30" : ""}`}>
       <div className="flex items-center gap-2 mb-2">
         <div className={`p-1.5 rounded-lg ${highlight ? "bg-red-500/15" : "bg-[hsl(var(--accent))]"}`}>
-          <Icon className={`w-4 h-4 ${highlight ? "text-red-400" : "text-[hsl(var(--primary))]"}`} />
+          <Icon className={`w-4 h-4 ${highlight ? "text-red-600 dark:text-red-400" : "text-[hsl(var(--primary))]"}`} />
         </div>
         <span className="text-xs text-[hsl(var(--muted-foreground))] uppercase tracking-wider font-medium">
           {label}
         </span>
       </div>
-      <div className={`text-2xl font-bold ${highlight ? "text-red-400" : "text-[hsl(var(--foreground))]"}`}>
+      <div className={`text-2xl font-bold ${highlight ? "text-red-600 dark:text-red-400" : "text-[hsl(var(--foreground))]"}`}>
         {value}
       </div>
       {sub && <div className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">{sub}</div>}
