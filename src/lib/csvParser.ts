@@ -61,3 +61,36 @@ export function parseCSV(file: File): Promise<ParseResult> {
     });
   });
 }
+
+export function parseCSVText(csvText: string): ParseResult {
+  const errors: string[] = [];
+  const results = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+  const transactions: Transaction[] = [];
+
+  (results.data as Record<string, string>[]).forEach((r, i) => {
+    const lineNum = i + 2;
+    if (!r.transaction_id || !r.sender_id || !r.receiver_id) {
+      errors.push(`Row ${lineNum}: Missing required fields`);
+      return;
+    }
+    const amount = parseFloat(r.amount);
+    if (isNaN(amount)) {
+      errors.push(`Row ${lineNum}: Invalid amount "${r.amount}"`);
+      return;
+    }
+    const timestamp = new Date(r.timestamp);
+    if (isNaN(timestamp.getTime())) {
+      errors.push(`Row ${lineNum}: Invalid timestamp "${r.timestamp}"`);
+      return;
+    }
+    transactions.push({
+      transaction_id: r.transaction_id.trim(),
+      sender_id: r.sender_id.trim(),
+      receiver_id: r.receiver_id.trim(),
+      amount,
+      timestamp,
+    });
+  });
+
+  return { transactions, errors };
+}
