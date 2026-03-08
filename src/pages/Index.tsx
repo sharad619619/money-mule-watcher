@@ -46,15 +46,18 @@ export default function Index() {
       <header className="border-b border-[hsl(var(--border))] bg-[hsl(var(--card)/0.8)] backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-1.5 rounded-lg bg-[hsl(var(--accent))]">
-              <Shield className="w-5 h-5 text-[hsl(var(--primary))]" />
+            <Link to="/" className="p-1.5 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors">
+              <ArrowLeft className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
+            </Link>
+            <div className="p-1.5 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xs">S</span>
             </div>
             <div>
               <h1 className="text-sm font-bold tracking-tight text-[hsl(var(--foreground))]">
-                Money Mule Detector
+                Strivion
               </h1>
               <p className="text-[10px] text-[hsl(var(--muted-foreground))] tracking-wider uppercase">
-                Financial Crime Intelligence Platform
+                AI Financial Forensics Platform
               </p>
             </div>
           </div>
