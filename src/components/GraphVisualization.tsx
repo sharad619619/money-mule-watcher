@@ -69,6 +69,11 @@ export default function GraphVisualization({ analysis }: GraphVisualizationProps
     const w = canvas.width;
     const h = canvas.height;
 
+    // Reset simulation state
+    simulationStoppedRef.current = false;
+    iterationRef.current = 0;
+    needsRenderRef.current = true;
+
     const nodeMap = new Map<string, SimNode>();
     analysis.nodes.forEach((n: AccountNode, i: number) => {
       const angle = (i / analysis.nodes.length) * 2 * Math.PI;
