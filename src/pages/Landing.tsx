@@ -266,12 +266,8 @@ export default function Landing() {
       {/* ── FOOTER ── */}
       <footer className="border-t border-border py-8 px-6">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-primary" />
-            <span className="font-semibold text-foreground">Money Mule Detection Engine</span>
-          </div>
-          <p className="text-center">RIFT 2026 Financial Crime Detection Track</p>
-          <p>Graph-based investigation tools for detecting financial fraud networks.</p>
+          <p>© 2026 Strivion. All rights reserved.</p>
+          <p>AI-powered graph analytics for detecting financial crime networks.</p>
         </div>
       </footer>
     </div>
