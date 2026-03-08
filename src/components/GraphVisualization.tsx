@@ -352,6 +352,7 @@ export default function GraphVisualization({ analysis }: GraphVisualizationProps
 
     const node = findNodeAt(mx, my);
     setHoveredNode(node);
+    needsRenderRef.current = true;
     if (node) {
       setTooltip({ x: e.clientX, y: e.clientY });
     } else {
@@ -371,8 +372,6 @@ export default function GraphVisualization({ analysis }: GraphVisualizationProps
       node.vy = 0;
     } else {
       isPanningRef.current = true;
-      const canvas = canvasRef.current!;
-      const rect = canvas.getBoundingClientRect();
       panStartRef.current = {
         x: e.clientX - panRef.current.x,
         y: e.clientY - panRef.current.y,
@@ -380,7 +379,7 @@ export default function GraphVisualization({ analysis }: GraphVisualizationProps
     }
   }, [getCanvasPos, findNodeAt]);
 
-  const handleMouseUp = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseUp = useCallback(() => {
     if (isDraggingRef.current && dragNodeRef.current) {
       isDraggingRef.current = false;
       dragNodeRef.current = null;
@@ -392,12 +391,14 @@ export default function GraphVisualization({ analysis }: GraphVisualizationProps
     const { mx, my } = getCanvasPos(e);
     const node = findNodeAt(mx, my);
     setSelectedNode(node?.id === selectedNode?.id ? null : node);
+    needsRenderRef.current = true;
   }, [getCanvasPos, findNodeAt, selectedNode]);
 
   const handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     const factor = e.deltaY < 0 ? 1.1 : 0.9;
     scaleRef.current = Math.max(0.2, Math.min(4, scaleRef.current * factor));
+    needsRenderRef.current = true;
   }, []);
 
   const formatCurrency = (n: number) =>
