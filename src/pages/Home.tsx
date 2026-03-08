@@ -64,17 +64,6 @@ export default function Home() {
 
         <div className="relative max-w-7xl mx-auto px-6 pt-24 pb-20 lg:pt-36 lg:pb-32">
           <div className="max-w-3xl">
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              custom={0}
-              variants={fadeUp}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-medium mb-8"
-            >
-              <Shield className="w-3.5 h-3.5" />
-              AI-Powered Financial Forensics
-            </motion.div>
-
             <motion.h1
               initial="hidden"
               animate="visible"
