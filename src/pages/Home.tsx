@@ -205,62 +205,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Product Preview */}
-      <section className="py-24 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            custom={0}
-            variants={fadeUp}
-            className="text-center mb-16"
-          >
-            <p className="text-sm text-primary font-medium uppercase tracking-widest mb-3">Platform</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-              Powerful Investigation Dashboard
-            </h2>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            custom={1}
-            variants={fadeUp}
-            className="panel rounded-2xl p-1 max-w-5xl mx-auto"
-          >
-            <div className="rounded-xl bg-surface overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-destructive/60" />
-                  <div className="w-3 h-3 rounded-full bg-warning/60" />
-                  <div className="w-3 h-3 rounded-full bg-primary/40" />
-                </div>
-                <div className="flex-1 text-center">
-                  <span className="text-xs text-muted-foreground font-mono">strivion.app/analysis</span>
-                </div>
-              </div>
-              <div className="p-8 space-y-6">
-                <div className="grid grid-cols-4 gap-4">
-                  {["Accounts Analyzed", "Flagged Accounts", "Fraud Rings", "Processing Time"].map((label) => (
-                    <div key={label} className="panel rounded-lg p-4">
-                      <div className="text-xs text-muted-foreground mb-1">{label}</div>
-                      <div className="text-xl font-bold text-foreground">—</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="panel rounded-lg p-6 h-48 flex items-center justify-center">
-                  <div className="text-center">
-                    <Network className="w-12 h-12 text-primary/30 mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">Interactive Transaction Network Graph</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
 
       {/* Benefits */}
       <section className="py-24">
