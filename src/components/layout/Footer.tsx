@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo.png";
 
 const footerLinks = {
   Product: [
@@ -29,11 +30,8 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">S</span>
-              </div>
-              <span className="font-bold text-foreground">Strivion</span>
+            <div className="mb-4">
+              <img src={logo} alt="Strivion Logo" className="h-8 w-auto object-contain" />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               AI-powered graph analytics for detecting financial crime networks.

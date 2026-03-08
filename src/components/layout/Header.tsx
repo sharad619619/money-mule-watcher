@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.png";
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -23,11 +24,8 @@ export default function Header() {
     <header className="fixed top-0 inset-x-0 z-50 border-b border-border/50 glass">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">S</span>
-          </div>
-          <span className="text-base font-bold tracking-tight text-foreground">Strivion</span>
+        <Link to="/" className="flex items-center">
+          <img src={logo} alt="Strivion Logo" className="h-10 w-auto object-contain" />
         </Link>
 
         {/* Desktop nav */}
