@@ -1,215 +1,358 @@
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Network, FileJson, ArrowRight, Upload, Cpu, Search, BarChart3,
-  AlertTriangle, Shield, TrendingUp, Download, Eye
+  Network, ArrowRight, Upload, Cpu, Search, BarChart3,
+  AlertTriangle, Shield, Download, Database, Layers,
+  RefreshCw, Users, FileJson, Play,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/layout/Layout";
+import GraphVisualization from "@/components/GraphVisualization";
+import FraudRingTable from "@/components/FraudRingTable";
+import SummaryStats from "@/components/SummaryStats";
+import FileUpload from "@/components/FileUpload";
+import { parseCSV, parseCSVText } from "@/lib/csvParser";
+import { analyzeTransactions, AnalysisResult } from "@/lib/graphAnalysis";
 import { fadeUp } from "@/lib/animations";
 
-const sampleAccounts = [
-  { id: "ACC-7291", score: 94, reason: "Circular fund routing" },
-  { id: "ACC-3845", score: 87, reason: "High fan-in transfers" },
-  { id: "ACC-1023", score: 76, reason: "Layered transaction chain" },
-  { id: "ACC-5610", score: 68, reason: "Smurfing pattern detected" },
-];
-
-const sampleInsights = [
-  "Circular transaction pattern detected: A → B → C → A",
-  "High fan-in transfers detected on ACC-3845 (12 sources)",
-  "Suspicious transaction layering identified across 4 hops",
-  "Anomalous velocity: 23 transactions in 90-second window",
-];
-
-const steps = [
-  { icon: Upload, title: "Upload Transaction Dataset", desc: "Upload transaction data in CSV format containing sender, receiver, amount, and timestamp." },
-  { icon: Network, title: "Graph Network Construction", desc: "The system converts transactions into a network graph of accounts and money flows." },
-  { icon: Cpu, title: "AI Pattern Analysis", desc: "Advanced algorithms detect patterns including circular routing, smurfing, and layered transfers." },
-  { icon: Search, title: "Fraud Detection Results", desc: "Investigators receive graph visualizations, suspicious account flags, and downloadable investigation reports." },
-];
-
-const outputs = [
-  { icon: Network, title: "Graph Visualization", desc: "Interactive transaction network map showing account relationships and fund flows." },
-  { icon: AlertTriangle, title: "Fraud Ring Detection", desc: "Circular transaction chains automatically identified and highlighted." },
-  { icon: BarChart3, title: "Risk Score Report", desc: "Suspicious accounts ranked by composite fraud risk score." },
-  { icon: Download, title: "JSON Investigation Report", desc: "Downloadable structured fraud investigation report for compliance teams." },
+const workflowSteps = [
+  {
+    icon: Database,
+    title: "Transaction Data Input",
+    desc: "CSV file with transaction_id, sender_id, receiver_id, amount, and timestamp fields.",
+  },
+  {
+    icon: Network,
+    title: "Graph Network Construction",
+    desc: "Transaction records are converted into a directed network graph of nodes and edges.",
+  },
+  {
+    icon: Cpu,
+    title: "Fraud Pattern Detection",
+    items: [
+      { icon: RefreshCw, label: "Circular Fund Routing", example: "A → B → C → A" },
+      { icon: Users, label: "Smurfing Patterns", example: "Fan-in / Fan-out" },
+      { icon: Layers, label: "Layered Shell Networks", example: "Multi-hop chains" },
+    ],
+  },
+  {
+    icon: BarChart3,
+    title: "Risk Scoring & Alerts",
+    desc: "Suspicious accounts receive risk scores and are grouped into detected fraud rings.",
+  },
+  {
+    icon: FileJson,
+    title: "Investigation Output",
+    desc: "Interactive graph, fraud ring summary table, and downloadable JSON investigation report.",
+  },
 ];
 
 export default function Demo() {
   const navigate = useNavigate();
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [mode, setMode] = useState<"idle" | "sample" | "custom">("idle");
+
+  // Load sample dataset
+  const loadSampleData = useCallback(async () => {
+    setIsLoading(true);
+    setErrors([]);
+    setAnalysis(null);
+    setMode("sample");
+
+    await new Promise((r) => setTimeout(r, 100));
+
+    try {
+      const response = await fetch("/sample_transactions.csv");
+      const text = await response.text();
+      const { transactions, errors: parseErrors } = parseCSVText(text);
+
+      if (parseErrors.length > 0) setErrors(parseErrors.slice(0, 5));
+
+      if (transactions.length === 0) {
+        setErrors(["No valid transactions found in sample dataset."]);
+        setIsLoading(false);
+        return;
+      }
+
+      const result = analyzeTransactions(transactions);
+      setAnalysis(result);
+    } catch (err) {
+      setErrors(["Failed to load sample dataset."]);
+    }
+    setIsLoading(false);
+  }, []);
+
+  // Handle custom CSV upload
+  const handleUpload = useCallback(async (file: File) => {
+    setIsLoading(true);
+    setErrors([]);
+    setAnalysis(null);
+    setMode("custom");
+
+    await new Promise((r) => setTimeout(r, 50));
+
+    const { transactions, errors: parseErrors } = await parseCSV(file);
+
+    if (parseErrors.length > 0) setErrors(parseErrors.slice(0, 5));
+
+    if (transactions.length === 0) {
+      setErrors((prev) => [...prev, "No valid transactions found in the file."]);
+      setIsLoading(false);
+      return;
+    }
+
+    const result = analyzeTransactions(transactions);
+    setAnalysis(result);
+    setIsLoading(false);
+  }, []);
 
   return (
     <Layout>
-      {/* ── HEADER ── */}
-      <section className="py-24 lg:py-32">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="max-w-3xl mb-20">
-            <motion.p initial="hidden" animate="visible" custom={0} variants={fadeUp} className="text-sm text-primary font-medium uppercase tracking-widest mb-4">
-              Product Demo
+      <div className="max-w-7xl mx-auto px-6">
+        {/* ── HERO ── */}
+        <section className="py-20 lg:py-28">
+          <div className="max-w-3xl">
+            <motion.p initial="hidden" animate="visible" custom={0} variants={fadeUp}
+              className="text-sm text-primary font-medium uppercase tracking-widest mb-4">
+              Interactive Demo
             </motion.p>
-            <motion.h1 initial="hidden" animate="visible" custom={1} variants={fadeUp} className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
-              Product Demo
+            <motion.h1 initial="hidden" animate="visible" custom={1} variants={fadeUp}
+              className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
+              Strivion Investigation Demo
             </motion.h1>
-            <motion.p initial="hidden" animate="visible" custom={2} variants={fadeUp} className="text-lg text-muted-foreground mb-4">
-              Explore how Strivion detects hidden fraud networks using graph-based financial analysis.
+            <motion.p initial="hidden" animate="visible" custom={2} variants={fadeUp}
+              className="text-lg text-muted-foreground mb-4">
+              Explore how graph-based analytics uncover hidden money-muling networks.
             </motion.p>
-            <motion.p initial="hidden" animate="visible" custom={3} variants={fadeUp} className="text-muted-foreground">
-              This demonstration showcases how transaction data is analyzed, transformed into network graphs, and used to identify suspicious financial behavior such as money-muling rings, circular transactions, and layered fund transfers.
+            <motion.p initial="hidden" animate="visible" custom={3} variants={fadeUp}
+              className="text-muted-foreground mb-8">
+              Upload transaction data or explore the sample dataset to see how Strivion detects suspicious
+              transaction patterns, fraud rings, and coordinated money-muling activity.
             </motion.p>
+            <motion.div initial="hidden" animate="visible" custom={4} variants={fadeUp}
+              className="flex flex-wrap items-center gap-3">
+              <Button size="lg" onClick={loadSampleData} disabled={isLoading} className="gap-2 glow-button">
+                <Play className="w-4 h-4" /> Try Demo Dataset
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => {
+                setMode("custom");
+                setAnalysis(null);
+                document.getElementById("upload-section")?.scrollIntoView({ behavior: "smooth" });
+              }}>
+                <Upload className="w-4 h-4 mr-2" /> Upload CSV
+              </Button>
+            </motion.div>
           </div>
+        </section>
 
-          {/* ── DASHBOARD PREVIEW ── */}
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} custom={0} variants={fadeUp}
-            className="panel rounded-2xl p-6 lg:p-8 max-w-6xl mx-auto mb-24">
-            <h2 className="text-xl font-bold text-foreground mb-6">Investigation Dashboard</h2>
+        {/* ── LOADING STATE ── */}
+        {isLoading && (
+          <motion.div initial="hidden" animate="visible" custom={0} variants={fadeUp}
+            className="panel rounded-2xl p-12 text-center mb-12">
+            <div className="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-foreground font-semibold">Analyzing transaction network...</p>
+            <p className="text-sm text-muted-foreground mt-1">Running detection algorithms on graph data</p>
+          </motion.div>
+        )}
 
-            <div className="grid lg:grid-cols-3 gap-6">
-              {/* Graph area */}
-              <div className="lg:col-span-2 rounded-xl border border-border bg-background p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-foreground">Transaction Network Graph</h3>
-                  <span className="text-xs text-primary font-medium px-2 py-1 rounded-full bg-primary/10">Live</span>
+        {/* ── ERRORS ── */}
+        {errors.length > 0 && (
+          <div className="panel rounded-xl p-4 border-amber-500/30 mb-8">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="w-4 h-4 text-amber-400" />
+              <span className="text-xs font-semibold text-amber-400">Parse Warnings</span>
+            </div>
+            <ul className="space-y-1">
+              {errors.map((e, i) => (
+                <li key={i} className="text-xs text-muted-foreground font-mono">{e}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* ── INVESTIGATION DASHBOARD ── */}
+        {analysis && (
+          <motion.div initial="hidden" animate="visible" custom={0} variants={fadeUp}>
+            {/* Summary Stats */}
+            <section className="mb-8">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+                  01 — Analysis Summary
+                </span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+              <SummaryStats analysis={analysis} />
+            </section>
+
+            {/* Graph Visualization */}
+            <section className="mb-8">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+                  02 — Transaction Network Graph
+                </span>
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-[10px] text-muted-foreground">
+                  Hover nodes for details · Click for investigation panel
+                </span>
+              </div>
+              <GraphVisualization analysis={analysis} />
+            </section>
+
+            {/* Fraud Ring Table */}
+            <section className="mb-12">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+                  03 — Fraud Ring Registry
+                </span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+              <FraudRingTable rings={analysis.fraudRings} />
+            </section>
+          </motion.div>
+        )}
+
+        {/* ── UPLOAD SECTION ── */}
+        <section id="upload-section" className="mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} custom={0} variants={fadeUp}>
+            <div className="mb-3 flex items-center gap-2">
+              <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
+                {analysis ? "04 — " : ""}Upload Your Own Data
+              </span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+
+            <div className="panel rounded-2xl p-6 lg:p-8">
+              <div className="grid lg:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-lg font-bold text-foreground mb-2">Try Your Own Dataset</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Upload a CSV file to run the full detection pipeline on your own transaction data.
+                    All analysis runs locally in your browser — no data is transmitted.
+                  </p>
+
+                  <div className="panel rounded-xl p-4 mb-4">
+                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
+                      Required CSV Structure
+                    </h4>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="border-b border-border">
+                            <th className="text-left py-2 pr-4 text-muted-foreground font-semibold">Column</th>
+                            <th className="text-left py-2 text-muted-foreground font-semibold">Type</th>
+                          </tr>
+                        </thead>
+                        <tbody className="text-foreground font-mono">
+                          {[
+                            ["transaction_id", "string"],
+                            ["sender_id", "string"],
+                            ["receiver_id", "string"],
+                            ["amount", "number"],
+                            ["timestamp", "datetime"],
+                          ].map(([col, type]) => (
+                            <tr key={col} className="border-b border-border/50">
+                              <td className="py-2 pr-4 text-primary">{col}</td>
+                              <td className="py-2 text-muted-foreground">{type}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
-                <div className="relative aspect-[16/9] rounded-lg bg-muted/30 overflow-hidden flex items-center justify-center">
-                  {/* Simulated graph nodes */}
-                  <svg viewBox="0 0 400 220" className="w-full h-full" fill="none">
-                    {/* Edges */}
-                    <line x1="80" y1="60" x2="200" y2="40" stroke="hsl(var(--primary))" strokeWidth="1.5" opacity="0.5" />
-                    <line x1="200" y1="40" x2="320" y2="80" stroke="hsl(var(--primary))" strokeWidth="1.5" opacity="0.5" />
-                    <line x1="320" y1="80" x2="280" y2="170" stroke="hsl(var(--destructive))" strokeWidth="2" opacity="0.7" />
-                    <line x1="280" y1="170" x2="140" y2="160" stroke="hsl(var(--destructive))" strokeWidth="2" opacity="0.7" />
-                    <line x1="140" y1="160" x2="80" y2="60" stroke="hsl(var(--destructive))" strokeWidth="2" opacity="0.7" />
-                    <line x1="200" y1="40" x2="200" y2="130" stroke="hsl(var(--primary))" strokeWidth="1.5" opacity="0.4" />
-                    <line x1="200" y1="130" x2="140" y2="160" stroke="hsl(var(--primary))" strokeWidth="1.5" opacity="0.4" />
-                    <line x1="320" y1="80" x2="360" y2="160" stroke="hsl(var(--primary))" strokeWidth="1" opacity="0.3" />
-                    <line x1="80" y1="60" x2="40" y2="130" stroke="hsl(var(--primary))" strokeWidth="1" opacity="0.3" />
 
-                    {/* Normal nodes */}
-                    <circle cx="200" cy="40" r="12" fill="hsl(var(--primary))" opacity="0.8" />
-                    <circle cx="200" cy="130" r="8" fill="hsl(var(--primary))" opacity="0.6" />
-                    <circle cx="360" cy="160" r="7" fill="hsl(var(--primary))" opacity="0.5" />
-                    <circle cx="40" cy="130" r="7" fill="hsl(var(--primary))" opacity="0.5" />
-
-                    {/* Suspicious nodes (fraud ring) */}
-                    <circle cx="80" cy="60" r="14" fill="hsl(var(--destructive))" opacity="0.15" />
-                    <circle cx="80" cy="60" r="10" fill="hsl(var(--destructive))" opacity="0.8" />
-                    <circle cx="320" cy="80" r="14" fill="hsl(var(--destructive))" opacity="0.15" />
-                    <circle cx="320" cy="80" r="10" fill="hsl(var(--destructive))" opacity="0.8" />
-                    <circle cx="280" cy="170" r="14" fill="hsl(var(--destructive))" opacity="0.15" />
-                    <circle cx="280" cy="170" r="10" fill="hsl(var(--destructive))" opacity="0.8" />
-                    <circle cx="140" cy="160" r="14" fill="hsl(var(--destructive))" opacity="0.15" />
-                    <circle cx="140" cy="160" r="10" fill="hsl(var(--destructive))" opacity="0.8" />
-
-                    {/* Labels */}
-                    <text x="80" y="45" textAnchor="middle" fill="hsl(var(--foreground))" fontSize="8" fontWeight="600">A</text>
-                    <text x="200" y="27" textAnchor="middle" fill="hsl(var(--foreground))" fontSize="8" fontWeight="600">B</text>
-                    <text x="320" y="67" textAnchor="middle" fill="hsl(var(--foreground))" fontSize="8" fontWeight="600">C</text>
-                    <text x="280" y="190" textAnchor="middle" fill="hsl(var(--destructive))" fontSize="9" fontWeight="700">Fraud Ring</text>
-                    <text x="280" y="200" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="7">A → B → C → A</text>
-                  </svg>
+                <div>
+                  <FileUpload onUpload={handleUpload} isLoading={isLoading} />
                 </div>
               </div>
+            </div>
+          </motion.div>
+        </section>
 
-              {/* Right panels */}
-              <div className="space-y-6">
-                {/* Risk scores */}
-                <div className="rounded-xl border border-border bg-background p-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-primary" /> Risk Scores
-                  </h3>
-                  <div className="space-y-3">
-                    {sampleAccounts.map((acc) => (
-                      <div key={acc.id} className="flex items-center justify-between text-sm">
-                        <div>
-                          <span className="font-mono text-foreground">{acc.id}</span>
-                          <p className="text-xs text-muted-foreground">{acc.reason}</p>
-                        </div>
-                        <span className={`font-bold text-sm ${acc.score >= 80 ? "text-destructive" : "text-yellow-500"}`}>
-                          {acc.score}
-                        </span>
+        {/* ── DETECTION ENGINE WORKFLOW ── */}
+        <section className="mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} custom={0} variants={fadeUp}
+            className="text-center mb-12">
+            <p className="text-sm text-primary font-medium uppercase tracking-widest mb-3">Engine Workflow</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">How the Detection Engine Works</h2>
+          </motion.div>
+
+          <div className="relative max-w-4xl mx-auto">
+            {/* Vertical line */}
+            <div className="absolute left-6 lg:left-1/2 top-0 bottom-0 w-px bg-border lg:-translate-x-px" />
+
+            {workflowSteps.map((step, i) => (
+              <motion.div
+                key={step.title}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                custom={i * 0.5}
+                variants={fadeUp}
+                className={`relative flex items-start gap-6 mb-10 ${
+                  i % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
+                }`}
+              >
+                {/* Timeline dot */}
+                <div className="absolute left-6 lg:left-1/2 -translate-x-1/2 w-12 h-12 rounded-xl bg-accent border border-border flex items-center justify-center z-10">
+                  <step.icon className="w-5 h-5 text-primary" />
+                </div>
+
+                {/* Content card */}
+                <div className={`ml-20 lg:ml-0 lg:w-[calc(50%-3rem)] ${
+                  i % 2 === 0 ? "lg:pr-8" : "lg:pl-8"
+                } ${i % 2 === 0 ? "" : "lg:ml-auto"}`}>
+                  <div className="glass-card rounded-xl p-5 hover-lift">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                        Step {i + 1}
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-bold text-foreground mb-2">{step.title}</h3>
+                    {step.desc && (
+                      <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
+                    )}
+                    {step.items && (
+                      <div className="space-y-2 mt-2">
+                        {step.items.map((item) => (
+                          <div key={item.label} className="flex items-start gap-2">
+                            <item.icon className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                            <div>
+                              <span className="text-xs font-semibold text-foreground">{item.label}</span>
+                              <span className="text-xs text-muted-foreground ml-1.5">{item.example}</span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
-
-                {/* Insights */}
-                <div className="rounded-xl border border-border bg-background p-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-                    <Eye className="w-4 h-4 text-primary" /> Investigation Insights
-                  </h3>
-                  <ul className="space-y-2">
-                    {sampleInsights.map((insight, i) => (
-                      <li key={i} className="flex gap-2 text-xs text-muted-foreground">
-                        <AlertTriangle className="w-3 h-3 text-destructive shrink-0 mt-0.5" />
-                        {insight}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* ── WORKFLOW ── */}
-          <div className="max-w-5xl mx-auto mb-24">
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} custom={0} variants={fadeUp} className="text-center mb-12">
-              <p className="text-sm text-primary font-medium uppercase tracking-widest mb-3">Workflow</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground">How the Detection Engine Works</h2>
-            </motion.div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {steps.map((step, i) => (
-                <motion.div key={step.title} initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i} variants={fadeUp}
-                  className="panel rounded-xl p-6 text-center relative">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
-                    {i + 1}
-                  </div>
-                  <step.icon className="w-8 h-8 text-primary mx-auto mb-4 mt-2" />
-                  <h3 className="font-semibold text-foreground mb-2 text-sm">{step.title}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
-                </motion.div>
-              ))}
-            </div>
+              </motion.div>
+            ))}
           </div>
+        </section>
 
-          {/* ── SAMPLE OUTPUTS ── */}
-          <div className="max-w-5xl mx-auto mb-24">
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} custom={0} variants={fadeUp} className="text-center mb-12">
-              <p className="text-sm text-primary font-medium uppercase tracking-widest mb-3">Outputs</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Example Investigation Results</h2>
-            </motion.div>
-
-            <div className="grid sm:grid-cols-2 gap-6">
-              {outputs.map((item, i) => (
-                <motion.div key={item.title} initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i} variants={fadeUp}
-                  className="panel rounded-xl p-6 flex gap-4 items-start hover:border-primary/30 transition-colors">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <item.icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* ── CTA ── */}
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} custom={0} variants={fadeUp}
-            className="text-center panel rounded-2xl p-12 max-w-3xl mx-auto">
-            <TrendingUp className="w-10 h-10 text-primary mx-auto mb-4" />
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">Run Your Own Analysis</h2>
+        {/* ── CTA ── */}
+        <motion.section initial="hidden" whileInView="visible" viewport={{ once: true }} custom={0} variants={fadeUp}
+          className="mb-16">
+          <div className="panel rounded-2xl p-12 text-center">
+            <Shield className="w-10 h-10 text-primary mx-auto mb-4" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
+              Run Your Own Analysis
+            </h2>
             <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-              Upload transaction data and uncover hidden financial crime networks using Strivion's graph analysis engine.
+              Upload transaction data and uncover hidden financial crime networks using Strivion's
+              graph analysis engine. Full investigation tools available in the analysis platform.
             </p>
-            <Button size="lg" onClick={() => navigate("/app")} className="gap-2 glow-button">
-              Try Demo <ArrowRight className="w-4 h-4" />
+            <Button size="lg" onClick={() => navigate("/analysis")} className="gap-2 glow-button">
+              Open Full Platform <ArrowRight className="w-4 h-4" />
             </Button>
-          </motion.div>
-        </div>
-      </section>
+          </div>
+        </motion.section>
+      </div>
     </Layout>
   );
 }
