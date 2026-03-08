@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { fadeUp } from "@/lib/animations";
 import HeroBackground from "@/components/landing/HeroBackground";
+import HeroNetworkGraph from "@/components/landing/HeroNetworkGraph";
 import ArchitectureSection from "@/components/landing/ArchitectureSection";
 import TrustSection from "@/components/landing/TrustSection";
 import DashboardShowcase from "@/components/landing/DashboardShowcase";
@@ -119,47 +120,89 @@ export default function Landing() {
       </nav>
 
       {/* ── HERO ── */}
-      <section id="hero" className="relative pt-32 pb-24 px-6 overflow-hidden">
-        {/* Animated network background */}
+      <section id="hero" className="relative pt-28 pb-0 px-6 overflow-hidden" style={{ background: "linear-gradient(165deg, hsl(222 47% 6%) 0%, hsl(217 50% 12%) 50%, hsl(220 45% 8%) 100%)" }}>
+        {/* Subtle animated background */}
         <HeroBackground />
-        {/* Background decoration */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl" />
-          <div className="absolute top-20 right-20 w-72 h-72 rounded-full bg-destructive/5 blur-3xl" />
+          <div className="absolute top-1/3 left-1/4 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px]" />
+          <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-destructive/5 blur-[100px]" />
         </div>
 
-        <div className="relative max-w-4xl mx-auto text-center">
-          <motion.div initial="hidden" animate="visible" custom={0} variants={fadeUp}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-primary text-[11px] font-semibold tracking-wider uppercase mb-6">
-              <Shield className="w-3 h-3" /> Financial Crime Intelligence
+        <div className="relative max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center min-h-[520px]">
+            {/* Left – Copy */}
+            <div className="max-w-xl">
+              <motion.div initial="hidden" animate="visible" custom={0} variants={fadeUp}>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-primary text-[11px] font-semibold tracking-wider uppercase mb-6">
+                  <Shield className="w-3 h-3" /> Financial Crime Intelligence
+                </div>
+              </motion.div>
+
+              <motion.p initial="hidden" animate="visible" custom={0.5} variants={fadeUp} className="text-primary font-bold text-sm tracking-wide uppercase mb-2">
+                Strivion
+              </motion.p>
+
+              <motion.h1 initial="hidden" animate="visible" custom={1} variants={fadeUp} className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold tracking-tight leading-[1.08] mb-5 text-foreground">
+                Uncover Hidden<br />
+                <span className="text-primary">Fraud Networks</span>
+              </motion.h1>
+
+              <motion.p initial="hidden" animate="visible" custom={2} variants={fadeUp} className="text-base text-muted-foreground font-medium leading-relaxed mb-8 max-w-md">
+                Graph-powered transaction analysis that detects money mule rings, layered transfers, and smurfing patterns in real time.
+              </motion.p>
+
+              <motion.div initial="hidden" animate="visible" custom={3} variants={fadeUp} className="flex items-center gap-3">
+                <Button size="lg" onClick={() => navigate("/analysis")} className="gap-2 text-sm glow-button">
+                  Get Started <ArrowRight className="w-4 h-4" />
+                </Button>
+                <Button size="lg" variant="outline" onClick={() => scrollTo("features")} className="text-sm bg-transparent border-border text-foreground hover:bg-muted">
+                  View Demo
+                </Button>
+              </motion.div>
+            </div>
+
+            {/* Right – Network Graph Preview */}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="relative"
+            >
+              <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm shadow-2xl overflow-hidden">
+                <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-border/50">
+                  <div className="w-2.5 h-2.5 rounded-full bg-destructive/70" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-warning/70" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-safe/70" />
+                  <span className="ml-3 text-[10px] text-muted-foreground font-medium">Transaction Network — Live Analysis</span>
+                </div>
+                <div className="h-[380px]">
+                  <HeroNetworkGraph />
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Metrics Bar */}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            custom={4}
+            variants={fadeUp}
+            className="relative mt-16 mb-0 pb-12"
+          >
+            <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto">
+              {[
+                { value: "2.4M+", label: "Transactions Analyzed" },
+                { value: "1,200+", label: "Fraud Rings Detected" },
+                { value: "99.7%", label: "Detection Accuracy" },
+              ].map(({ value, label }) => (
+                <div key={label} className="text-center">
+                  <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">{value}</div>
+                  <div className="text-[11px] sm:text-xs text-muted-foreground font-medium mt-1 uppercase tracking-wider">{label}</div>
+                </div>
+              ))}
             </div>
           </motion.div>
-          <motion.h1 initial="hidden" animate="visible" custom={1} variants={fadeUp} className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-4">
-            Money Mule<br />
-            <span className="text-primary">Detection Engine</span>
-          </motion.h1>
-          <motion.p initial="hidden" animate="visible" custom={2} variants={fadeUp} className="text-lg sm:text-xl text-muted-foreground font-medium mb-3">
-            Graph-Based Financial Crime Detection Using Transaction Network Analysis
-          </motion.p>
-          <motion.p initial="hidden" animate="visible" custom={3} variants={fadeUp} className="text-sm text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
-            This platform analyzes financial transaction data to detect coordinated money-muling activities using graph algorithms and pattern detection. It helps investigators identify suspicious transaction flows, fraud rings, and hidden financial networks.
-          </motion.p>
-          <motion.div initial="hidden" animate="visible" custom={4} variants={fadeUp} className="flex items-center justify-center gap-3">
-            <Button size="lg" onClick={() => navigate("/analysis")} className="gap-2 text-sm glow-button">
-              Start Analysis <ArrowRight className="w-4 h-4" />
-            </Button>
-            <Button size="lg" variant="outline" onClick={() => scrollTo("features")} className="text-sm">
-              View Features
-            </Button>
-          </motion.div>
-
-          <button
-            onClick={() => scrollTo("problem")}
-            className="mt-14 mx-auto flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <span className="text-[10px] uppercase tracking-widest font-semibold">Scroll</span>
-            <ChevronDown className="w-4 h-4 animate-bounce" />
-          </button>
         </div>
       </section>
 
