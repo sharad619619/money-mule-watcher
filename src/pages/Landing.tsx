@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fadeUp } from "@/lib/animations";
-import HeroBackground from "@/components/landing/HeroBackground";
+
 import HeroNetworkGraph from "@/components/landing/HeroNetworkGraph";
 import ArchitectureSection from "@/components/landing/ArchitectureSection";
 import TrustSection from "@/components/landing/TrustSection";
