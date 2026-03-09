@@ -120,7 +120,7 @@ export default function Landing() {
       </nav>
 
       {/* ── HERO ── */}
-      <section id="hero" className="relative pt-28 pb-0 px-6 overflow-hidden" style={{ background: "linear-gradient(180deg, #f4f9ff 0%, #eaf4ff 50%, #dceeff 100%)" }}>
+      <section id="hero" className="relative pt-28 pb-0 px-6 overflow-hidden" style={{ background: "linear-gradient(180deg, #f7fbff 0%, #eef6ff 40%, #e4f0ff 100%)" }}>
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-1/3 left-1/4 w-[600px] h-[600px] rounded-full bg-primary/3 blur-[120px]" />
           <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-accent/2 blur-[100px]" />
